@@ -9,6 +9,7 @@ import com.velocitypowered.api.event.Subscribe;
 import com.velocitypowered.api.event.player.ServerPostConnectEvent;
 import com.velocitypowered.api.event.proxy.ProxyInitializeEvent;
 import com.velocitypowered.api.event.proxy.ProxyShutdownEvent;
+import com.velocitypowered.api.network.ProtocolVersion;
 import com.velocitypowered.api.plugin.Dependency;
 import com.velocitypowered.api.plugin.Plugin;
 import com.velocitypowered.api.plugin.PluginContainer;
@@ -68,6 +69,7 @@ public class F3NProxyPerm {
     }
 
     public void updateOpLevel(Player player) {
+        if (!shouldSendPacket(player)) return;
         int status = canUse(player) ? 28 : 24;
         PacketEvents.getAPI().getPlayerManager().sendPacket(player, new WrapperPlayServerEntityStatus(PacketEvents.getAPI().getPlayerManager().getUser(player).getEntityId(), status));
     }
@@ -79,5 +81,9 @@ public class F3NProxyPerm {
 
     public boolean canUse(Player player) {
         return player.hasPermission("f3nperm.use");
+    }
+
+    public boolean shouldSendPacket(Player player) {
+        return player.getProtocolVersion().getProtocol() > ProtocolVersion.MINECRAFT_1_13.getProtocol();
     }
 }

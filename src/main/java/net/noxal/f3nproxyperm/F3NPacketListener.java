@@ -26,12 +26,14 @@ public class F3NPacketListener implements PacketListener {
     }
 
     public void onPacketSend(PacketSendEvent event) {
-        if (event.getPacketType() != PacketType.Play.Server.ENTITY_STATUS) {
+        if (event.getPacketType() != PacketType.Play.Server.ENTITY_STATUS
+                || event.getPlayer() == null
+                || !F3NProxyPerm.instance.canUse(event.getPlayer())
+                || F3NProxyPerm.instance.shouldSendPacket(event.getPlayer())
+        ) {
             return;
         }
-        if (event.getPlayer() == null || !F3NProxyPerm.instance.canUse(event.getPlayer())) {
-            return;
-        }
+
         WrapperPlayServerEntityStatus entityStatusPacket = new WrapperPlayServerEntityStatus(event);
         if (entityStatusPacket.getEntityId() != PacketEvents.getAPI().getPlayerManager().getUser(event.getPlayer()).getEntityId()) {
             return;

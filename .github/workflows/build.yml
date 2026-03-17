@@ -23,6 +23,8 @@ jobs:
           name: F3NProxyPerm
           path: build/libs/F3NProxyPerm-*.jar
           overwrite: true
+      - name: "Publish to Modrinth"
+        uses: cloudnode-pro/modrinth-publish@v2
 
   delete-old-workflows:
     runs-on: self-hosted
