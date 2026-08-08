@@ -3,5 +3,5 @@ blossom = "net.kyori.blossom:2.2.0"
 
 [libraries]
 luckperms = "net.luckperms:api:5.5"
-velocity = "com.velocitypowered:velocity-api:3.4.0-SNAPSHOT"
-packetevents = "com.github.retrooper:packetevents-velocity:2.11.1"
+velocity = "com.velocitypowered:velocity-api:4.1.0-SNAPSHOT"
+packetevents = "com.github.retrooper:packetevents-velocity:2.13.0"

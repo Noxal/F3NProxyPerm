@@ -50,28 +50,36 @@ public class F3NProxyPerm {
 
     @Subscribe
     public void onProxyInitialize(ProxyInitializeEvent event) {
-        proxy.getCommandManager().register(F3NPermCommand.command());
+        try {
+            PacketEvents.getAPI().init();
+            PacketEvents.getAPI().getEventManager().registerListener(new F3NPacketListener(), PacketListenerPriority.HIGHEST);
 
-        PacketEvents.getAPI().init();
-        PacketEvents.getAPI().getEventManager().registerListener(new F3NPacketListener(), PacketListenerPriority.HIGHEST);
-        if (proxy.getPluginManager().getPlugin("luckperms").isPresent()) luckpermsHook = new LuckPermsHook();
+            proxy.getCommandManager().register(F3NPermCommand.command());
+            proxy.getEventManager().register(this, ProxyShutdownEvent.class, this::onProxyShutdown);
+            proxy.getEventManager().register(this, ServerPostConnectEvent.class, this::onServerPostConnect);
+            if (proxy.getPluginManager().getPlugin("luckperms").isPresent()) luckpermsHook = new LuckPermsHook();
+        } catch (Throwable e) {
+            logger.error("Failed to initialize PacketEvents", e);
+        }
     }
 
-    @Subscribe
     public void onProxyShutdown(ProxyShutdownEvent event) {
         PacketEvents.getAPI().terminate();
         if (luckpermsHook != null) luckpermsHook.unregister();
     }
 
-    @Subscribe
     public void onServerPostConnect(ServerPostConnectEvent event) {
         updateOpLevel(event.getPlayer());
     }
 
     public void updateOpLevel(Player player) {
-        if (!shouldSendPacket(player)) return;
-        int status = canUse(player) ? 28 : 24;
-        PacketEvents.getAPI().getPlayerManager().sendPacket(player, new WrapperPlayServerEntityStatus(PacketEvents.getAPI().getPlayerManager().getUser(player).getEntityId(), status));
+        try {
+            if (!shouldSendPacket(player)) return;
+            int status = canUse(player) ? 28 : 24;
+            PacketEvents.getAPI().getPlayerManager().sendPacket(player, new WrapperPlayServerEntityStatus(PacketEvents.getAPI().getPlayerManager().getUser(player).getEntityId(), status));
+        } catch (Exception e) {
+            logger.error("Failed to update op level for player " + player.getUsername(), e);
+        }
     }
 
     public void changeGameMode(Player player, GameMode gameMode) {
